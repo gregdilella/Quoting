@@ -1,5 +1,5 @@
-googlemaps==4.10.0
-numpy==1.23.5
-pandas==1.5.3
-pydeck==0.8.1b0
-Requests==2.31.0
+googlemaps
+numpy
+pandas
+pydeck
+Requests
