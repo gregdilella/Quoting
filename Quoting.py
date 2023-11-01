@@ -114,10 +114,6 @@ def extract_value(data):
 st.markdown(
     """
     <style>
-    body {
-        background-color: #121212;
-        color: white;
-    }
     
     .sidebar .sidebar-content {
         background-color: #001f3f;
