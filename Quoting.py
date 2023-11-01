@@ -678,20 +678,21 @@ if calculate_button:
             if pickup_date.weekday() in [5, 6]:
                 df.at[index, 'Weekend Charge'] = 25
 
-            df['Pickup Time'] = pd.to_datetime(df['Pickup Time']).dt.time
-            # Initialize 'After Hours' column with zeros
-            df['AfterHours Charge'] = 0
+        df['Pickup Time'] = pd.to_datetime(df['Pickup Time'], format='%H:%M:%S')
 
-            # Define the time thresholds
-            morning_threshold = pd.to_datetime('08:00:00').time()
-            evening_threshold = pd.to_datetime('20:00:00').time()
+        # Initialize 'After Hours' column with zeros
+        df['AfterHours Charge'] = 0
 
-            # Update 'After Hours' based on the condition
-            for index, row in df.iterrows():
-                pickup_time = row['Pickup Time']
-                
-                if pickup_time < morning_threshold or pickup_time >= evening_threshold:
-                    df.at[index, 'AfterHours Charge'] = 15
+        # Define the time thresholds
+        morning_threshold = pd.to_datetime('08:00:00', format='%H:%M:%S').time()
+        evening_threshold = pd.to_datetime('20:00:00', format='%H:%M:%S').time()
+
+        # Update 'After Hours' based on the condition
+        for index, row in df.iterrows():
+            pickup_time = row['Pickup Time'].time()
+            
+            if pickup_time < morning_threshold or pickup_time >= evening_threshold:
+                df.at[index, 'AfterHours Charge'] = 15
 
 
 
@@ -750,8 +751,8 @@ if calculate_button:
     if df['Weekend Charge'].iloc[0] != 0:
         st.write(f"Weekend Fee - {df['Weekend Charge'].iloc[0]:.2f} $ ")
 
-    if df['AfterHour Charge'].iloc[0] != 0:
-        st.write(f"AfterHour Fee - {df['AfterHour Charge'].iloc[0]:.2f} $ ")
+    if df['AfterHours Charge'].iloc[0] != 0:
+        st.write(f"AfterHour Fee - {df['AfterHours Charge'].iloc[0]:.2f} $ ")
 
     if df['Security Surcharge'].iloc[0] != 0:
         st.write(f"Security Surcharge - {df['Security Surcharge'].iloc[0]:.2f} $ ")
