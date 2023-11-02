@@ -292,7 +292,7 @@ if calculate_button:
 
     df = pd.DataFrame(data)
 
-    st.write(df)
+    # st.write(df)
 
 
 
@@ -758,7 +758,7 @@ if calculate_button:
 
 
 
-    st.write(df)
+    # st.write(df)
 
 
 
