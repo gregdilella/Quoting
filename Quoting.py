@@ -377,6 +377,10 @@ if calculate_button:
 
         df['Overnight Hold Charge'] = np.where(df["Overnight Hold"] == "No" , 0 , 44)
 
+        df['Holiday Charge'] =0 
+        df['Weekend Charge']=0
+        df['AfterHours Charge']=0
+
         df['GPS Fee'] = np.where(df["GPS"] == "No" , 0 , 100)
 
         df['total_sum'] = df["Weight Charge"] + df['Vehicle Charge'] + df['DG fee'] + df['Pieces Charge'] + df['Toll charge'] + df['Overnight Hold Charge']  + df['Non-Contiguous'] + df['GPS Fee'] + df['Airline Transfer Charge'] 
@@ -491,6 +495,9 @@ if calculate_button:
         else:
             df['Toll charge'] = del_estimated_toll * 0
 
+        df['Holiday Charge'] =0 
+        df['Weekend Charge']=0
+        df['AfterHours Charge']=0
 
         if service !='NDO':
             df["Flight Legs"] = df["Flight Legs"].astype(int)
