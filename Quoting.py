@@ -431,10 +431,13 @@ if calculate_button:
             df['Weight Charge'] = weight.apply(calculate_charge)
 
         if service =="NDO":
+            df['Airline Transfer Charge']= 0
+
             weight = pd.Series([weight])
             def calculate_charge(weight):
                 if df['Delivery Destination State'].iloc[0] in ['KS', 'IL'] and df['Pickup Origin State'].iloc[0] in ['KS', 'IL']:
-                    base_charge = 1599.84
+                     base_charge = 1599.84
+                     return base_charge
      
 
 
