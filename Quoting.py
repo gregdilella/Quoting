@@ -185,22 +185,24 @@ with st.sidebar:
 
     
     st.header("Pickup")
-    pickup_address = st.text_input("Pickup Address", "Keuhne Nagel Jersey city", key="Pickup Address")
+    pickup_address = st.text_input("Pickup Address", "Bombardier Des Plaines", key="Pickup Address")
     if service !='NDO':
-        pickup_airport = st.selectbox("Pickup Airport Code", ["ATL", "LAX", "ORD", "DFW", "DEN", "JFK", "SFO", "SEA", "LAS", "MCO", "EWR", "PHX", "IAH", "MIA", "BOS", "MSP", "FLL", "DTW", "CLT", "SLC", "SAN", "BWI", "MDW", "TPA", "PDX", "HNL", "IAD", "DAL", "STL", "HOU", "AUS", "OAK", "MCI", "RDU", "MSY", "SJC", "SNA", "PIT", "SMF", "RSW", "CLE", "CMH", "IND", "BNA", "SAT", "PBI", "BUF", "OGG", "ELP", "TUS", "OMA", "CHS", "GRR", "SDF", "JAX", "ORF", "DAY", "ROC", "TUL", "BOI", "GEG", "CRP", "SYR", "LEX", "FAT", "SBN", "ABQ", "PWM", "TYS", "TRI", "GSO", "HSV", "EVV", "BTR", "AVL", "FAR", "MHT", "SGF", "LIT", "XNA", "TLH", "BIL", "CAK", "SCE", "BMI", "GPT", "SPI", "MFE", "PIA", "GJT", "MLI", "CWA", "JLN", "SUX", "BPT", "FSD", "SWF","YUL", "YYZ", "YVR", "YYC", "YEG", "YOW", "YWG", "YHZ", "YYJ", "YQB"] 
+        pickup_airport = st.selectbox("Pickup Airport Code", ["ORD","ATL", "LAX", "DFW", "DEN", "JFK", "SFO", "SEA", "LAS", "MCO", "EWR", "PHX", "IAH", "MIA", "BOS", "MSP", "FLL", "DTW", "CLT", "SLC", "SAN", "BWI", "MDW", "TPA", "PDX", "HNL", "IAD", "DAL", "STL", "HOU", "AUS", "OAK", "MCI", "RDU", "MSY", "SJC", "SNA", "PIT", "SMF", "RSW", "CLE", "CMH", "IND", "BNA", "SAT", "PBI", "BUF", "OGG", "ELP", "TUS", "OMA", "CHS", "GRR", "SDF", "JAX", "ORF", "DAY", "ROC", "TUL", "BOI", "GEG", "CRP", "SYR", "LEX", "FAT", "SBN", "ABQ", "PWM", "TYS", "TRI", "GSO", "HSV", "EVV", "BTR", "AVL", "FAR", "MHT", "SGF", "LIT", "XNA", "TLH", "BIL", "CAK", "SCE", "BMI", "GPT", "SPI", "MFE", "PIA", "GJT", "MLI", "CWA", "JLN", "SUX", "BPT", "FSD", "SWF","YUL", "YYZ", "YVR", "YYC", "YEG", "YOW", "YWG", "YHZ", "YYJ", "YQB"] 
 , key="pickup_airport")
+        pickup_airport = pickup_airport + ' Airport'
     else:
         pickup_airport = None
 
 
     st.header("Delivery")
     if service != "NDO":
-        delivery_airport = st.selectbox("Delivery Airport Code", ["ATL", "LAX", "ORD", "DFW", "DEN", "JFK", "SFO", "SEA", "LAS", "MCO", "EWR", "PHX", "IAH", "MIA", "BOS", "MSP", "FLL", "DTW", "CLT", "SLC", "SAN", "BWI", "MDW", "TPA", "PDX", "HNL", "IAD", "DAL", "STL", "HOU", "AUS", "OAK", "MCI", "RDU", "MSY", "SJC", "SNA", "PIT", "SMF", "RSW", "CLE", "CMH", "IND", "BNA", "SAT", "PBI", "BUF", "OGG", "ELP", "TUS", "OMA", "CHS", "GRR", "SDF", "JAX", "ORF", "DAY", "ROC", "TUL", "BOI", "GEG", "CRP", "SYR", "LEX", "FAT", "SBN", "ABQ", "PWM", "TYS", "TRI", "GSO", "HSV", "EVV", "BTR", "AVL", "FAR", "MHT", "SGF", "LIT", "XNA", "TLH", "BIL", "CAK", "SCE", "BMI", "GPT", "SPI", "MFE", "PIA", "GJT", "MLI", "CWA", "JLN", "SUX", "BPT", "FSD", "SWF","YUL", "YYZ", "YVR", "YYC", "YEG", "YOW", "YWG", "YHZ", "YYJ", "YQB"] 
+        delivery_airport = st.selectbox("Delivery Airport Code", ["EWR","ATL", "LAX", "ORD", "DFW", "DEN", "JFK", "SFO", "SEA", "LAS", "MCO", "PHX", "IAH", "MIA", "BOS", "MSP", "FLL", "DTW", "CLT", "SLC", "SAN", "BWI", "MDW", "TPA", "PDX", "HNL", "IAD", "DAL", "STL", "HOU", "AUS", "OAK", "MCI", "RDU", "MSY", "SJC", "SNA", "PIT", "SMF", "RSW", "CLE", "CMH", "IND", "BNA", "SAT", "PBI", "BUF", "OGG", "ELP", "TUS", "OMA", "CHS", "GRR", "SDF", "JAX", "ORF", "DAY", "ROC", "TUL", "BOI", "GEG", "CRP", "SYR", "LEX", "FAT", "SBN", "ABQ", "PWM", "TYS", "TRI", "GSO", "HSV", "EVV", "BTR", "AVL", "FAR", "MHT", "SGF", "LIT", "XNA", "TLH", "BIL", "CAK", "SCE", "BMI", "GPT", "SPI", "MFE", "PIA", "GJT", "MLI", "CWA", "JLN", "SUX", "BPT", "FSD", "SWF","YUL", "YYZ", "YVR", "YYC", "YEG", "YOW", "YWG", "YHZ", "YYJ", "YQB"] 
 , key="delivery_airport")
+        delivery_airport = delivery_airport + ' Airport'
     else: 
         delivery_airport = None
     
-    delivery_address = st.text_input("Delivery Address",'JFK', key="Delivery Address")
+    delivery_address = st.text_input("Delivery Address",'Keuhne Nagel Jersey city', key="Delivery Address")
 
     st.header("Dangerous Goods")
     dangerous_goods = st.selectbox("Are Dangerous Goods Included?", ["No", "Yes"], key="dangerous_goods")
