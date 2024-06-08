@@ -158,7 +158,7 @@ with st.sidebar:
     st.sidebar.image("download.png", caption='', use_column_width=True)
     # Customer
     st.header("Customer")
-    customer = st.selectbox("Select Customer", ["Netjets", "Bombardier","T11"], key="customer")
+    customer = st.selectbox("Select Customer", ["Netjets", "Bombardier","T11", "Allegiant"], key="customer")
 
     st.header("Service")
     service = st.selectbox("Select Service", ["NFO", "NDO", "HFPU"], key="service")
@@ -713,6 +713,181 @@ if calculate_button:
         df['Final Quote'] = df["Weight Charge"] + df['Vehicle Charge'] + df['DG fee'] + df['Pieces Charge'] + df['Toll charge'] + df['Overnight Hold Charge']  + df['Non-Contiguous'] + df['GPS Fee'] + df['Airline Transfer Charge'] + df['Fuel Surcharge'] + df['Security Surcharge']+df['Holiday Charge'] +df['Weekend Charge'] + df['AfterHours Charge'] 
         final_quote = df['Final Quote'].iloc[0] 
     
+    if customer == "Allegiant":
+
+        df['Delivery Destination State'] = df['Delivery Destination State'].str[1:3]
+        df['Pickup Origin State'] = df['Pickup Origin State'].str[1:3]
+        if service =="NFO":
+            weight = pd.Series([weight])
+            
+            def calculate_charge(weight):
+                # Check if Delivery Destination State or Pickup Origin State is AL or HI
+                if df['Delivery Destination State'].iloc[0] in ['AL', 'HI'] or df['Pickup Origin State'].iloc[0] in ['AL', 'HI']:
+                    base_charge = 185
+                else:
+                    base_charge = 135
+
+                if weight <= 50:
+                    return base_charge
+                else:
+                    return base_charge + 15 * ((weight - 50) // 50 + 1)
+
+            # Apply the function to the dataframe
+            df['Weight Charge'] = weight.apply(calculate_charge)
+
+        if service =="HFPU":
+            def calculate_charge(weight):
+                    
+                if df['Delivery Destination State'].iloc[0] in ['AL', 'HI'] or df['Pickup Origin State'].iloc[0] in ['AL', 'HI']:
+                    base_charge = 165
+                else:
+                    base_charge = 115
+            
+                    if weight <= 50:
+                        return base_charge
+                    else:
+                        return base_charge + 15 * ((weight - 50) // 50 + 1)
+
+                # Apply the function to the dataframe
+            df['Weight Charge'] = weight.apply(calculate_charge)
+
+        if service =="NDO":
+            weight = pd.Series([weight])
+            def calculate_charge(weight):
+
+                if df['Delivery Destination State'].iloc[0] in ['AL', 'HI'] or df['Pickup Origin State'].iloc[0] in ['AL', 'HI']:
+                    base_charge = 75
+                else:
+                    base_charge = 45
+
+
+                if weight <= 50:
+                    return base_charge
+                else:
+                    return base_charge + 15 * ((weight - 50) // 50 + 1)
+                
+
+
+            # Apply the function to the dataframe
+            df['Weight Charge'] = weight.apply(calculate_charge)
+
+
+
+        def calculate_vehicle_charge(row):
+            excess_miles = max(0, row['Pickup Mileage'] - 15) + max(0,row['Delivery Mileage'] - 15)   # Calculate excess miles
+            
+
+            if row["Vehicle Type"] == 'Car':
+                vehicle_charge = 2.25
+                flat_charge = 0
+            elif row["Vehicle Type"] == 'Van':
+                vehicle_charge = 3.75
+                flat_charge = 0
+            elif row["Vehicle Type"] == 'Truck':
+                vehicle_charge = 3.75
+                flat_charge = 0
+            else:
+                vehicle_charge = 0  # Default charge if vehicle type is not recognized
+                flat_charge = 0 
+
+            return (vehicle_charge * excess_miles) + flat_charge
+
+        df['Vehicle Charge'] = df.apply(calculate_vehicle_charge, axis=1)
+
+        df["Pieces"] = df["Pieces"].astype(int)
+        df['DG fee'] = np.where(df["Dangerous Goods Included"] == "No" , 0 , 150)
+        df['Pieces Charge'] = np.where(df['Pieces'] > 1, 100, 0)
+
+        averageGasPrice = statistics.mean(GasPrices)
+
+        def get_fuel_surcharge(averageGasPrice):
+            for index, row in FS.iterrows():
+                if row['At Least'] <= averageGasPrice < row['Less than']:
+                    return row['Fuel Surcharge %']
+
+        df['FS percetage'] = get_fuel_surcharge(averageGasPrice) /100
+
+        if service !='NDO':
+            df['Toll charge'] = (df['Delivery Estimated Toll'] + df['Pickup Estimated Toll']) * 1.1
+        else:
+            df['Toll charge'] = del_estimated_toll * 0
+
+
+        if service !='NDO':
+            df["Flight Legs"] = df["Flight Legs"].astype(int)
+
+            condition_1 = df['Flight Legs'].iloc[0] > 1
+            condition_2 = (df['Delivery Destination State'].iloc[0] in ['AL', 'HI']) or (df['Pickup Origin State'].iloc[0] in ['AL', 'HI'])
+            condition_3 = df['Flight Legs'].iloc[0] == 1
+
+            # Calculate the extra charge for weight over 50 lbs
+            if condition_1:
+                weight_increment = np.maximum(0, df['Weight'] - 50) // 1  # This will give the number of increments over 50 lbs
+                weight_charge = 15 * weight_increment
+            else:
+                weight_charge = 0
+
+            # Combine the conditions for the base charge
+            base_charge = np.where((condition_1 & condition_2), 185, np.where(condition_1, 135, np.where(condition_3, 0, 0)))
+
+            # Combine the base charge with the weight charge
+            df['Airline Transfer Charge'] = base_charge + weight_charge
+    
+
+        df['Non-Contiguous']=0
+        df['Overnight Hold Charge'] = np.where(df["Overnight Hold"] == "No" , 0 , 45)
+
+        df['GPS Fee'] = np.where(df["GPS"] == "No" , 0 , 0)
+
+        df['Pickup Date'] = pd.to_datetime(df['Pickup Date'])
+
+        # Initialize 'Holiday Charge' and 'Weekend Charge' columns with zeros
+        df['Holiday Charge'] = 0
+        df['Weekend Charge'] = 0
+
+        # Define the holidays (you can specify the country)
+        us_holidays = holidays.UnitedStates(years=df['Pickup Date'].dt.year.unique())
+
+        # Update 'Holiday Charge' and 'Weekend Charge' based on conditions
+        for index, row in df.iterrows():
+            pickup_date = row['Pickup Date']
+            
+            # Check if the date is a holiday
+            if pickup_date in us_holidays:
+                df.at[index, 'Holiday Charge'] = 40
+            
+            # Check if the date is a weekend (Saturday=5, Sunday=6)
+            if pickup_date.weekday() in [5, 6]:
+                df.at[index, 'Weekend Charge'] = 15
+
+        df['Pickup Time'] = pd.to_datetime(df['Pickup Time'], format='%H:%M:%S')
+
+        # Initialize 'After Hours' column with zeros
+        df['AfterHours Charge'] = 0
+
+        # Define the time thresholds
+        morning_threshold = pd.to_datetime('08:00:00', format='%H:%M:%S').time()
+        evening_threshold = pd.to_datetime('20:00:00', format='%H:%M:%S').time()
+
+        # Update 'After Hours' based on the condition
+        for index, row in df.iterrows():
+            pickup_time = row['Pickup Time'].time()
+            
+            if pickup_time < morning_threshold or pickup_time >= evening_threshold:
+                df.at[index, 'AfterHours Charge'] = 10
+
+
+
+        df['total_sum'] = df["Weight Charge"] + df['Vehicle Charge'] + df['DG fee'] + df['Pieces Charge'] + df['Toll charge'] + df['Overnight Hold Charge']  + df['Non-Contiguous'] + df['GPS Fee'] + df['Airline Transfer Charge'] +df['Holiday Charge'] +df['Weekend Charge'] + df['AfterHours Charge'] 
+        df['Fuel Surcharge'] = df['total_sum']* df['FS percetage']
+        df['Security Surcharge'] = df['total_sum']* .065
+
+
+        # add attempt, Wait time
+        df['Final Quote'] = df["Weight Charge"] + df['Vehicle Charge'] + df['DG fee'] + df['Pieces Charge'] + df['Toll charge'] + df['Overnight Hold Charge']  + df['Non-Contiguous'] + df['GPS Fee'] + df['Airline Transfer Charge'] + df['Fuel Surcharge'] + df['Security Surcharge']+df['Holiday Charge'] +df['Weekend Charge'] + df['AfterHours Charge'] 
+        final_quote = df['Final Quote'].iloc[0] 
+
+
     # Update the quote in the placeholder
     quote_placeholder.markdown(
         f'<div style="background-color: #001f3f; padding: 10px; border-radius: 10px; text-align: center;">'
@@ -721,8 +896,8 @@ if calculate_button:
         unsafe_allow_html=True,
     )
 
-    st.write(f"Pickup -  Mileage: {pickup_mileage:.1f} miles - Toll: {pickup_estimated_toll} $")
-    st.write(f"Delivery - Mileage : {del_mileage:.1f} miles - Toll: {del_estimated_toll} $ ")
+    # st.write(f"Pickup -  Mileage: {pickup_mileage:.1f} miles - Toll: {pickup_estimated_toll} $")
+    # st.write(f"Delivery - Mileage : {del_mileage:.1f} miles - Toll: {del_estimated_toll} $ ")
 
     st.header("Billing Charges")
 
